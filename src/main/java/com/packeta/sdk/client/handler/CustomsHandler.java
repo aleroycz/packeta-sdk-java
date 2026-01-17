@@ -33,7 +33,6 @@ import java.math.BigDecimal;
  * @since 1.0.0
  */
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class CustomsHandler {
 
     /**

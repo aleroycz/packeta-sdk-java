@@ -9,8 +9,12 @@ on:
     - cron: '30 1 * * 0'  # Weekly on Sunday at 1:30 AM UTC
 
 permissions:
-  contents: read
   security-events: write
+  id-token: write
+  contents: read
+  issues: read
+  pull-requests: read
+  checks: read
 
 jobs:
   scorecard:
@@ -23,7 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run Scorecards
-        uses: ossf/scorecard-action@v2
+        uses: ossf/scorecard-action
         with:
           results_file: scorecard.sarif
           results_format: sarif

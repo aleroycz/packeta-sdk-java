@@ -10,6 +10,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.packeta.sdk.model.security.Security;
 import com.packeta.sdk.model.tax.RoLogisticsTaxDeclaration;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
  */
 @JacksonXmlRootElement(localName = "packetAttributes")
 @Data
+@Builder
 public class PacketAttributes {
     /**
      * Deprecated attribute.

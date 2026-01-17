@@ -2,6 +2,7 @@ package com.packeta.sdk.model.services;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.packeta.sdk.model.shipment.returns.ReturnDestinationService;
 import lombok.Data;
 
 /**

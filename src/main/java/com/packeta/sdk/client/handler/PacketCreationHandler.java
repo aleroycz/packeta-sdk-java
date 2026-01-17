@@ -38,8 +38,7 @@ public class PacketCreationHandler {
      * @throws PacketaApiException On any API error
      */
     public PacketIdDetail createPacket(PacketAttributes attributes) throws PacketaApiException {
-        String innerXml = "<packetAttributes>" + XmlHelper.toXml(attributes) + "</packetAttributes>";
-        return rh.xml("createPacket", innerXml, PacketIdDetail.class, "packetIdDetail");
+        return rh.xml("createPacket", XmlHelper.toXml(attributes), PacketIdDetail.class, "packetIdDetail");
     }
 
     /**
@@ -50,8 +49,7 @@ public class PacketCreationHandler {
      * @throws PacketaApiException On any API error
      */
     public List<PacketIdDetail> createPacketsB2B(PacketB2BAttributes attributes) throws PacketaApiException {
-        String innerXml = "<packetB2BAttributes>" + XmlHelper.toXml(attributes) + "</packetB2BAttributes>";
-        return rh.xml("createPacketsB2B", innerXml,
+        return rh.xml("createPacketsB2B", XmlHelper.toXml(attributes),
                 new TypeReference<>() {
                 }, "packetIds");
     }
@@ -93,8 +91,7 @@ public class PacketCreationHandler {
      * @throws PacketaApiException If attributes are invalid
      */
     public void validatePacketAttributes(PacketAttributes attributes) throws PacketaApiException {
-        String innerXml = "<packetAttributes>" + XmlHelper.toXml(attributes) + "</packetAttributes>";
-        rh.xml("packetAttributesValid", innerXml, Void.class, null);
+        rh.xml("packetAttributesValid", XmlHelper.toXml(attributes), Void.class, null);
     }
 
     /**
@@ -105,8 +102,7 @@ public class PacketCreationHandler {
      * @throws PacketaApiException If attributes are invalid
      */
     public void validateClaimAttributes(ClaimAttributes attributes) throws PacketaApiException {
-        String innerXml = "<claimAttributes>" + XmlHelper.toXml(attributes) + "</claimAttributes>";
-        rh.xml("packetClaimAttributesValid", innerXml, Void.class, null);
+        rh.xml("packetClaimAttributesValid", XmlHelper.toXml(attributes), Void.class, null);
     }
 
     /**
@@ -116,7 +112,6 @@ public class PacketCreationHandler {
      * @throws PacketaApiException If attributes are invalid
      */
     public void validateClaimWithPasswordAttributes(ClaimWithPasswordAttributes attributes) throws PacketaApiException {
-        String innerXml = "<claimWithPasswordAttributes>" + XmlHelper.toXml(attributes) + "</claimWithPasswordAttributes>";
-        rh.xml("packetClaimWithPasswordAttributesValid", innerXml, Void.class, null);
+        rh.xml("packetClaimWithPasswordAttributesValid", XmlHelper.toXml(attributes), Void.class, null);
     }
 }

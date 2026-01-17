@@ -21,7 +21,8 @@ public class RateLimit {
      * @return configured RateLimiter
      */
     public static RateLimit create(double permitsPerSecond) {
-        return new RateLimit(RateLimit.create(permitsPerSecond).getRateLimiter());
+        RateLimiter limiter = RateLimiter.create(permitsPerSecond);
+        return new RateLimit(limiter);
     }
 
     /**

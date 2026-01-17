@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.RateLimiter;
 import com.packeta.sdk.exception.*;
-import com.packeta.sdk.model.Fault;
+import com.packeta.sdk.model.PacketaErrorResponse;
 import com.packeta.sdk.util.PacketaRequestBuilder;
 import com.packeta.sdk.util.SimpleRetry;
 import com.packeta.sdk.util.XmlHelper;
@@ -37,12 +37,14 @@ public class RequestHandler {
     public <T> T xml(String method, String innerXml, Class<T> type, String root) throws PacketaApiException {
         rateLimiter.acquire();
 
-        String fullXml = PacketaRequestBuilder.buildRequest(apiPassword, innerXml);
+        String fullXml = PacketaRequestBuilder.buildRequest(method, apiPassword, innerXml);
         log.debug("XML → {}:\n{}", method, fullXml);
 
         return SimpleRetry.withRetry(() -> {
             try {
                 String respXml = postXml(fullXml);
+
+                System.out.println("Response: \n" + respXml);
 
                 if (XmlHelper.isFaultResponse(respXml)) {
                     throw createSpecificException(parseFault(respXml));
@@ -62,16 +64,18 @@ public class RequestHandler {
     public <T> T xml(String method, String innerXml, TypeReference<T> typeRef, String rootName) throws PacketaApiException {
         rateLimiter.acquire();
 
-        String fullXml = PacketaRequestBuilder.buildRequest(apiPassword, innerXml);
+        String fullXml = PacketaRequestBuilder.buildRequest(method, apiPassword, innerXml);
         log.debug("XML → {}:\n{}", method, fullXml);
 
         return SimpleRetry.withRetry(() -> {
             try {
                 String respXml = postXml(fullXml);
 
+                System.out.println("Response: \n" + respXml);
+
                 if (XmlHelper.isFaultResponse(respXml)) {
-                    Fault fault = parseFault(respXml);
-                    throw createSpecificException(fault);
+                    PacketaErrorResponse packetaErrorResponse = parseFault(respXml);
+                    throw createSpecificException(packetaErrorResponse);
                 }
 
                 return rootName != null
@@ -88,7 +92,7 @@ public class RequestHandler {
     public byte[] binaryXml(String method, String innerXml) throws PacketaApiException {
         rateLimiter.acquire();
 
-        String fullXml = PacketaRequestBuilder.buildRequest(apiPassword, innerXml);
+        String fullXml = PacketaRequestBuilder.buildRequest(method, apiPassword, innerXml);
         log.debug("Binary XML → {}:\n{}", method, fullXml);
 
         return SimpleRetry.withRetry(() -> {
@@ -185,34 +189,58 @@ public class RequestHandler {
     }
 
     // Fault → Exception mapping (same as before, just shortened)
-    private PacketaApiException createSpecificException(Fault fault) {
-        String code = fault.getFaultCode();
-        String msg = fault.getFaultString();
-        List<PacketAttributesFaultException.AttributeFault> attrFaults =
-                fault.getAttributeFaults() != null ? fault.getAttributeFaults() : List.of();
+    private PacketaApiException createSpecificException(PacketaErrorResponse packetaErrorResponse) {
+        String code = packetaErrorResponse.getFaultCode();
+        String msg = packetaErrorResponse.getFaultString();
+        List<PacketaErrorResponse.AttributeFault> faults =
+                packetaErrorResponse.getDetail().getAttributes() != null
+                        ? packetaErrorResponse.getDetail().getAttributes()
+                        : List.of();
 
         return switch (code) {
-            case "packetAttributesFault" -> new PacketAttributesFaultException(code, msg, attrFaults);
-            case "externalGatewayError", "externalCarrierError" -> new ExternalGatewayFaultException(code, msg);
-            case "argumentsFault" -> new ArgumentsFaultException(code, msg);
-            case "cancelNotAllowed" -> new CancelNotAllowedFaultException(code, msg);
-            case "customBarcodeNotAllowed" -> new CustomBarcodeNotAllowedFaultException(code, msg);
-            case "dateOutOfRange" -> new DateOutOfRangeFaultException(code, msg);
-            case "dispatchOrderNotAllowed" -> new DispatchOrderNotAllowedFaultException(code, msg);
-            case "incorrectApiPassword" -> new IncorrectApiPasswordFaultException(code, msg);
-            case "packetIdFault" -> new PacketIdFaultException(code, msg);
-            case "senderNotExists" -> new SenderNotExistsException(code, msg, fault.getDetail());
-            case "unknownLabelFormat" -> new UnknownLabelFormatFaultException(code, msg, fault.getDetail());
-            case "packetIdsFault" -> new PacketIdsFaultException(code, msg);
-            case "notSupported" -> new NotSupportedFaultException(code, msg);
-            case "noPacketIds" -> new NoPacketIdsFaultException(code, msg);
-            case "invalidCourierNumber" -> new InvalidCourierNumberException(code, msg);
-            case "shipmentNotFound" -> new ShipmentNotFoundFaultException(code, msg);
+            case "PacketAttributesFault" -> new PacketAttributesFaultException(code, msg, faults);
+            case "ExternalGatewayError", "externalCarrierError" -> new ExternalGatewayFaultException(code, msg);
+            case "ArgumentsFault" -> new ArgumentsFaultException(code, msg);
+            case "CancelNotAllowed" -> new CancelNotAllowedFaultException(code, msg);
+            case "CustomBarcodeNotAllowed" -> new CustomBarcodeNotAllowedFaultException(code, msg);
+            case "DateOutOfRange" -> new DateOutOfRangeFaultException(code, msg);
+            case "DispatchOrderNotAllowed" -> new DispatchOrderNotAllowedFaultException(code, msg);
+            case "IncorrectApiPassword" -> new IncorrectApiPasswordFaultException(code, msg);
+            case "PacketIdFault" -> new PacketIdFaultException(code, msg);
+            case "SenderNotExists" -> new SenderNotExistsException(
+                    code,
+                    msg,
+                    packetaErrorResponse.getDetail() != null
+                            ? packetaErrorResponse.getDetail().toString().trim()   // safe extraction
+                            : null
+            );
+
+            case "UnknownLabelFormat" -> new UnknownLabelFormatFaultException(
+                    code,
+                    msg,
+                    packetaErrorResponse.getDetail() != null
+                            ? packetaErrorResponse.getDetail().toString().trim()
+                            : null
+            );
+            case "PacketIdsFault" -> new PacketIdsFaultException(code, msg);
+            case "NotSupported" -> new NotSupportedFaultException(code, msg);
+            case "NoPacketIds" -> new NoPacketIdsFaultException(code, msg);
+            case "InvalidCourierNumber" -> new InvalidCourierNumberException(code, msg);
+            case "ShipmentNotFound" -> new ShipmentNotFoundFaultException(code, msg);
             default -> new PacketaApiExceptionCustom(code, msg);
         };
     }
 
-    private Fault parseFault(String xml) throws PacketaApiException {
-        return XmlHelper.fromXml(xml, Fault.class, "fault");
+    private PacketaErrorResponse parseFault(String xml) throws PacketaApiException {
+        try {
+            return XmlHelper.fromXml(xml, PacketaErrorResponse.class);
+        } catch (PacketaApiException e) {
+            // fallback for very old API behavior (unlikely in 2025/2026)
+            try {
+                return XmlHelper.fromXml(xml, PacketaErrorResponse.class, "fault");
+            } catch (PacketaApiException ignored) {
+                throw e; // throw the original "status" error
+            }
+        }
     }
 }

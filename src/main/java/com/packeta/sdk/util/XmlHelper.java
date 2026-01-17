@@ -1,20 +1,30 @@
 package com.packeta.sdk.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+import com.fasterxml.jackson.dataformat.xml.util.DefaultXmlPrettyPrinter;
 import com.packeta.sdk.exception.PacketaApiException;
 import com.packeta.sdk.exception.PacketaApiExceptionCustom;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import org.codehaus.stax2.XMLStreamWriter2;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 
 /**
  * Utility class for XML serialization and deserialization using Jackson XmlMapper.
  * Configured specifically for Packeta's XML requirements (e.g., including XML declaration).
  */
+@Slf4j
 @UtilityClass
 public class XmlHelper {
 
@@ -22,8 +32,11 @@ public class XmlHelper {
 
     private static XmlMapper createXmlMapper() {
         XmlMapper mapper = new XmlMapper();
-        mapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
+        mapper.setDefaultPrettyPrinter(new DefaultXmlPrettyPrinter());
+        mapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, false);
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
         return mapper;
     }
 
@@ -36,7 +49,9 @@ public class XmlHelper {
      */
     public static String toXml(Object object) throws PacketaApiException {
         try {
-            return XML_MAPPER.writeValueAsString(object);
+            return XML_MAPPER
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(object);
         } catch (JsonProcessingException e) {
             throw new PacketaApiExceptionCustom("XML_SERIALIZATION_ERROR",
                     "Failed to serialize object to XML: " + object.getClass().getSimpleName(), e);
@@ -64,6 +79,9 @@ public class XmlHelper {
      */
     public static <T> T fromXml(String xml, Class<T> targetType, String rootName) throws PacketaApiExceptionCustom {
         try {
+
+            log.debug(xml);
+
             return XML_MAPPER.readerFor(targetType)
                     .withRootName(rootName)
                     .readValue(xml);
@@ -110,6 +128,8 @@ public class XmlHelper {
      * @return true if it contains <fault> or <faultCode>
      */
     public static boolean isFaultResponse(String xml) {
-        return xml.contains("<fault>") || xml.contains("<faultCode>");
+        return xml.contains("<status>fault</status>") ||
+                xml.contains("<fault>") ||
+                xml.contains("<faultCode>");
     }
 }

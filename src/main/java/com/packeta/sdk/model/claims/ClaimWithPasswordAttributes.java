@@ -4,6 +4,7 @@ import com.packeta.sdk.model.enums.Currency;
 import com.packeta.sdk.model.enums.CountryCode;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.packeta.sdk.model.security.Security;
 import lombok.Data;
 
 import java.math.BigDecimal;
