@@ -46,30 +46,6 @@ dependencies {
 }
 
 tasks {
-    // Dokka configuration - generates beautiful HTML docs
-    dokkaHtml {
-        outputDirectory.set(layout.buildDirectory.dir("dokka/html"))
-        moduleName.set("Packeta Java SDK")
-        moduleVersion.set(project.version.toString())
-
-        // Optional: customize look & suppress warnings
-        pluginsMapConfiguration.set(
-                mapOf(
-                        "org.jetbrains.dokka.base" to mapOf(
-                                "separateSources" to true,
-                                "suppress" to listOf("UndocumentedPublicProperty", "UndocumentedPublicClass")
-                        )
-                )
-        )
-    }
-
-    // Make javadocJar use Dokka output
-    named<Jar>("javadocJar") {
-        dependsOn("dokkaHtml")
-        from(layout.buildDirectory.dir("dokka/html"))
-        archiveClassifier.set("javadoc")
-    }
-
     jar {
         archiveFileName.set("${project.name}-${project.version}.jar")
     }
@@ -80,61 +56,5 @@ tasks {
 
     test {
         useJUnitPlatform()
-    }
-}
-
-// -----------------------------------------------------------------------------
-// Signing the JAR (GPG)
-// -----------------------------------------------------------------------------
-
-signing {
-    useGpgCmd()
-    sign(configurations.archives.get())
-}
-
-// -----------------------------------------------------------------------------
-// Publishing to GitHub Packages (Maven)
-// -----------------------------------------------------------------------------
-
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-
-            pom {
-                name.set("Packeta Java SDK")
-                description.set("Unofficial Java SDK for Packeta/Zásilkovna REST/XML API")
-                url.set("https://github.com/aleroycz/packeta-sdk-java")
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("your-github-username")
-                        name.set("Alex")
-                        email.set("your@email.com")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:git://github.com/aleroycz/packeta-sdk-java.git")
-                    developerConnection.set("scm:git:ssh://git@github.com/aleroycz/packeta-sdk-java.git")
-                    url.set("https://github.com/aleroycz/packeta-sdk-java")
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/aleroycz/packeta-sdk-java")
-            credentials {
-                username = providers.gradleProperty("gpr.user").getOrElse(System.getenv("GITHUB_ACTOR") ?: "your-github-username")
-                password = providers.gradleProperty("gpr.token").getOrElse(System.getenv("GITHUB_TOKEN") ?: "")
-            }
-        }
     }
 }
