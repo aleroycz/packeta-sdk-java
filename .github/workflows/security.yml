@@ -1,0 +1,107 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 3 * * 1'  # Every Monday at 3:00 AM UTC
+  workflow_dispatch:     # Allow manual trigger
+
+permissions:
+  contents: read
+  security-events: write   # Required for CodeQL & Dependabot alerts
+  actions: read
+  checks: write
+
+jobs:
+
+  # ────────────────────────────────────────────────────────────────
+  # CodeQL - Advanced SAST (Static Analysis Security Testing)
+  # ────────────────────────────────────────────────────────────────
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
+          queries: security-and-quality
+
+      - name: Autobuild (Java)
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  # ────────────────────────────────────────────────────────────────
+  # Dependency Vulnerability Scanning (Trivy + OSV)
+  # ────────────────────────────────────────────────────────────────
+  dependency-scan:
+    name: Dependency & Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner (dependencies)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # ────────────────────────────────────────────────────────────────
+  # Secrets Scanning (Gitleaks)
+  # ────────────────────────────────────────────────────────────────
+  secrets-scan:
+    name: Secrets & Credential Leak Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for full history scan
+
+      - name: Run Gitleaks (detect secrets)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          config-path: .gitleaks.toml  # optional, see below
+          fail-on-leak: true
+          verbose: true
+
+  # ────────────────────────────────────────────────────────────────
+  # Optional: Simple regex secret scan (fast fallback)
+  # ────────────────────────────────────────────────────────────────
+  simple-secrets-check:
+    name: Simple Secrets Regex Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan for common secrets patterns
+        run: |
+          # Very basic regex check - extend as needed
+          if grep -r -E \
+            '(api[_-]?key|token|password|secret|aws_access_key_id|github_pat|bearer|client_secret)' \
+            --exclude-dir={.git,build,.gradle,target,node_modules} .; then
+            echo "Potential secret found! Check logs."
+            exit 1
+          else
+            echo "No obvious secrets found."
+          fi

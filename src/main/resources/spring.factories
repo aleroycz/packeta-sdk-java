@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.packeta.sdk.com.packeta.sdk.spring.PacketaAutoConfiguration

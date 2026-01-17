@@ -1,0 +1,14 @@
+"enhancement":
+  - any: ['feat/**']
+
+"bug":
+  - any: ['fix/**']
+
+"documentation":
+  - any: ['docs/**']
+
+"tests":
+  - any: ['test/**']
+
+"refactor":
+  - any: ['refactor/**']

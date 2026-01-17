@@ -1,0 +1,13 @@
+[allowlist]
+description = "Allowlist for known false positives"
+
+paths = [
+    ".*\\.md$",
+    ".*\\.txt$",
+    ".*\\.example$",
+    ".*\\.template$",
+    ".*test.*",
+]
+
+[redact]
+description = "Redact detected secrets from logs"

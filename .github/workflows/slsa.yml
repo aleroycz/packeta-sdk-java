@@ -1,0 +1,32 @@
+name: SLSA Provenance
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  id-token: write   # Required for SLSA
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build with Gradle
+        run: ./gradlew build --no-daemon
+
+      - name: Generate SLSA Provenance
+        uses: slsa-framework/slsa-github-generator@v2.0.0
+        with:
+          tool-name: gradle
+          tool-version: 8.10.2
+          artifact-path: build/libs/*.jar
+          predicate-type: slsaprovenance/v1

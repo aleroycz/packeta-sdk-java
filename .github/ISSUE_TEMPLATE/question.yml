@@ -1,0 +1,19 @@
+name: ❓ Question / Discussion
+description: Ask a question or start a discussion
+title: "[QUESTION] "
+labels: ["question"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question / topic
+      description: Ask anything about usage, architecture, best practices...
+      placeholder: "How should I best handle rate limiting in production?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Code snippets, use-case, what you already tried, etc.

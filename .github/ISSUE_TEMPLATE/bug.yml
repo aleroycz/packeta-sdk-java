@@ -1,0 +1,67 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
+title: "[BUG] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: input
+    id: packeta-version
+    attributes:
+      label: Packeta SDK version
+      description: Which version of the SDK are you using?
+      placeholder: 1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: java-version
+    attributes:
+      label: Java version
+      description: What Java version do you use?
+      placeholder: 21
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: "When I call createPacket() with ... I get ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Step-by-step instructions how to reproduce the bug
+      placeholder: |
+        1. Create PacketAttributes with ...
+        2. Call createPacket(...)
+        3. See error ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: What should have happened?
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Stack trace
+      description: Paste any relevant logs or stack traces
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Any other information (screenshots, related issues, etc.)

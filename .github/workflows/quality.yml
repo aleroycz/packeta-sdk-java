@@ -1,0 +1,59 @@
+name: Code Quality & Guidelines Check
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build --no-daemon
+
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+
+  quality-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check commit message convention
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          configPath: .github/commitlint.config.js
+
+      - name: Check branch name convention
+        run: |
+          BRANCH="${{ github.head_ref || github.ref_name }}"
+          if [[ ! $BRANCH =~ ^(feat|fix|docs|refactor|test|chore|perf)/.+$ ]]; then
+            echo "Branch name must follow pattern: type/description (feat/, fix/, etc.)"
+            exit 1
+          fi
+
+      - name: Run formatter check
+        run: ./gradlew googleJavaFormat --dry-run
+
+  labeler:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/labeler.yml
