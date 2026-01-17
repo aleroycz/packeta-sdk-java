@@ -24,7 +24,7 @@ jobs:
         run: ./gradlew build --no-daemon
 
       - name: Generate SLSA Provenance
-        uses: slsa-framework/slsa-github-generator@v2.0.0
+        uses: slsa-framework/slsa-github-generator@v2.1.0
         with:
           tool-name: gradle
           tool-version: 8.10.2
