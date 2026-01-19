@@ -9,14 +9,14 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Handler for packet tracking and status queries in the Packeta (Zásilkovna) API.
- * <p>
+ *
  * Provides methods to retrieve:
  * <ul>
  *   <li>Complete tracking history of a packet</li>
  *   <li>Current (latest) status of a packet</li>
  *   <li>Carrier-specific (external) tracking events for packets handed over to transport partners</li>
  * </ul>
- * </p>
+ *
  *
  * @since 1.0.0
  */
@@ -27,10 +27,10 @@ public class TrackingHandler {
 
     /**
      * Retrieves the complete tracking history of a Packeta packet.
-     * <p>
+     *
      * Returns all status records from creation to the most recent event.
      * This is the most detailed tracking information available from Packeta.
-     * </p>
+     *
      *
      * @param packetId Packeta packet identifier (e.g. "Z1234567890", "3130000123456")
      * @return {@link StatusRecords} containing the full history of status changes

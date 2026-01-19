@@ -41,7 +41,7 @@ public class XmlHelper {
     }
 
     /**
-     * Serializes an object to XML string, including the <?xml ?> declaration.
+     * Serializes an object to XML string, including the declaration.
      *
      * @param object the object to serialize
      * @return XML string
@@ -125,7 +125,7 @@ public class XmlHelper {
      * Checks if the XML response contains a fault (error).
      *
      * @param xml the raw XML response
-     * @return true if it contains <fault> or <faultCode>
+     * @return true if it contains fault or faultCode
      */
     public static boolean isFaultResponse(String xml) {
         return xml.contains("<status>fault</status>") ||

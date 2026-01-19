@@ -12,11 +12,11 @@ import java.math.BigDecimal;
 /**
  * Utility class for creating customs-related attributes required for international shipments
  * with Packeta (Zásilkovna) API.
- * <p>
+ *
  * These attributes are typically used when creating packets that cross customs borders
  * (non-EU shipments) and are passed as part of {@link com.packeta.sdk.model.packet.PacketAttributes}.
- * </p>
- * <p>
+ *
+ *
  * <strong>Usage example:</strong>
  * <pre>{@code
  * AttributeCollection customs = CustomsHandler.createCustomsAttributes(
@@ -28,7 +28,7 @@ import java.math.BigDecimal;
  * // Then attach to packet:
  * packetAttributes.setAttributes(customs);
  * }</pre>
- * </p>
+ *
  *
  * @since 1.0.0
  */

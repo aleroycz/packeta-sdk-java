@@ -9,7 +9,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * Represents the <fault> root element in Packeta error responses.
+ * Represents the fault root element in Packeta error responses.
  * Used when parsing XML fault responses from the API.
  */
 @JacksonXmlRootElement(localName = "response")

@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 
 /**
  * Handler responsible for generating various types of shipping labels in Packeta API.
- * <p>
+ *
  * Supports generation of:
  * <ul>
  *   <li>Packeta internal labels (PDF, ZPL)</li>
  *   <li>Carrier/transport company labels (PDF, PNG, ZPL)</li>
  *   <li>Batch printing of multiple labels</li>
  * </ul>
- * </p>
+ *
  *
  * @since 1.0.0
  */

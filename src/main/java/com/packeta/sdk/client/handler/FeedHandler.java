@@ -68,11 +68,15 @@ public class FeedHandler {
      */
     public CarriersPudosResponse getCarriers(List<Integer> carrierIds) throws PacketaApiException {
         String endpoint = "/carrier_point/json";
+
         if (carrierIds != null && !carrierIds.isEmpty()) {
-            endpoint += "?" + carrierIds.stream()
-                    .map(id -> "ids[]=" + id)
-                    .collect(Collectors.joining("&"));
+            String idsParam = carrierIds.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+
+            endpoint += "?id=" + idsParam;
         }
+
         return requestHandler.executeFeed(endpoint, CarriersPudosResponse.class);
     }
 }

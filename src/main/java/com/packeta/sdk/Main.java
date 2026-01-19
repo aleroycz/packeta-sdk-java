@@ -1,6 +1,10 @@
 package com.packeta.sdk;
 
+import com.packeta.sdk.exception.PacketaApiException;
+import com.packeta.sdk.exception.PacketaApiExceptionCustom;
 import com.packeta.sdk.model.Size;
+import com.packeta.sdk.model.feed.Carrier;
+import com.packeta.sdk.model.feed.CarriersPudosResponse;
 import com.packeta.sdk.util.pricing.PriceCalculator;
 import com.packeta.sdk.util.pricing.enums.Country;
 import com.packeta.sdk.util.pricing.enums.TransportType;
@@ -8,6 +12,7 @@ import com.packeta.sdk.util.pricing.model.dto.CalculateForOrder;
 import com.packeta.sdk.util.pricing.model.dto.CalculationResult;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Main {
     static final String RESET = "\u001B[0m";
@@ -18,7 +23,10 @@ public class Main {
     static final String RED = "\u001B[31m";
     static final String BLUE = "\u001B[34m";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws PacketaApiExceptionCustom {
+
+        PacketaClient client = new PacketaClient("", "");
+
         PriceCalculator priceCalculator = new PriceCalculator();
 
         CalculateForOrder order = CalculateForOrder.builder()
@@ -72,5 +80,18 @@ public class Main {
         System.out.println();
         System.out.println(BOLD + CYAN + "═══════════════════════════════════════════════════════════════" + RESET);
         System.out.println();
+
+        System.out.println("Printing carriers :");
+
+        try {
+            CarriersPudosResponse carrierList = client.getFeed().getCarriers(List.of(106));
+            System.out.println(carrierList);
+
+            carrierList.getCarriers().forEach(System.out::println);
+
+        } catch (PacketaApiException e) {
+            throw new PacketaApiExceptionCustom(e.getFaultCode(), e.getFaultString(), e);
+        }
     }
+
 }
