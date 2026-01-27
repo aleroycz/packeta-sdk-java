@@ -71,7 +71,7 @@ public class RequestHandler {
             try {
                 String respXml = postXml(fullXml);
 
-                System.out.println("Response: \n" + respXml);
+                //System.out.println("Response: \n" + respXml);
 
                 if (XmlHelper.isFaultResponse(respXml)) {
                     PacketaErrorResponse packetaErrorResponse = parseFault(respXml);
