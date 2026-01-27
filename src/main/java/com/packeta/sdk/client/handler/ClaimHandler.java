@@ -33,8 +33,7 @@ public class ClaimHandler {
      * @see ClaimAttributes
      */
     public PacketIdDetail createClaim(ClaimAttributes attr) throws PacketaApiException {
-        String xml = "<claimAttributes>" + XmlHelper.toXml(attr) + "</claimAttributes>";
-        return rh.xml("createPacketClaim", xml, PacketIdDetail.class, "result");
+        return rh.xml("createPacketClaim", XmlHelper.toXml(attr), PacketIdDetail.class, "result");
     }
 
     /**
@@ -53,7 +52,6 @@ public class ClaimHandler {
      */
     public PacketIdDetail createClaimWithPassword(ClaimWithPasswordAttributes attr)
             throws PacketaApiException {
-        String xml = "<claimWithPasswordAttributes>" + XmlHelper.toXml(attr) + "</claimWithPasswordAttributes>";
-        return rh.xml("createPacketClaimWithPassword", xml, PacketIdDetail.class, "result");
+        return rh.xml("createPacketClaimWithPassword", XmlHelper.toXml(attr), PacketIdDetail.class, "result");
     }
 }
